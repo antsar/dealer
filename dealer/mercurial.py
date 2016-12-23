@@ -2,6 +2,9 @@
 
 from __future__ import absolute_import
 
+import datetime
+from dateutil.tz import tzoffset
+
 from .base import SCMBackend, logger
 
 try:
@@ -17,6 +20,10 @@ try:
                 self._repo = HG.repository(ui.ui(), path=self.path or '.')
                 self._revision = self._repo[len(self._repo) - 1].hex()
                 self._tag = self._repo.tagslist()[0][1]
+                hg_date, hg_offset = self._repo[len(self._repo) - 1].date()
+                hg_tz = tzoffset(None, hg_offset)
+                self._revision_date = datetime.datetime.fromtimestamp(
+                    hg_date, hg_tz)
             except error.RepoError:
                 message = 'Mercurial repository not found: {0}'.format(
                     self.path)

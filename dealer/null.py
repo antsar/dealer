@@ -16,6 +16,7 @@ class Backend(SCMBackend):
         self._repo = self
         self._revision = 'null'
         self._tag = 'null'
+        self._revision_date = 'null'
         logger.warning('Dealer uses "null" revision.')
         return self
 

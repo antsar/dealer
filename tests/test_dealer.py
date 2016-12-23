@@ -1,6 +1,7 @@
 from os import path as op, environ
 import pytest
 from sys import version_info
+from datetime import datetime
 
 
 def test_git():
@@ -10,6 +11,8 @@ def test_git():
     assert git.repo
     assert git.revision
     assert git.tag
+    assert git.revision_date
+    assert type(git.revision_date) is datetime
 
     git.path = 'invalid/path/to/git'
     assert not git._repo
@@ -33,6 +36,8 @@ def test_hg():
     assert hg.repo
     assert hg.revision
     assert hg.tag
+    assert hg.revision_date
+    assert type(hg.revision_date) is datetime
 
     hg.path = 'invalid/path/to/hg'
     assert not hg._repo
@@ -49,6 +54,8 @@ def test_simple():
     assert simple.repo
     assert simple.revision == 'default'
     assert simple.tag == 'default'
+    assert simple.revision_date
+    assert type(simple.revision_date) is datetime
 
     simple.path = 'invalid/path/to/hg'
     assert not simple._repo
@@ -65,20 +72,29 @@ def test_simple():
 
 def test_env():
     from dealer.env import env, Backend
+    from dateutil.parser import parse
 
     environ['DEALER_REVISION'] = '3ffb6b6'
     environ['DEALER_TAG'] = 'v1.0'
+    environ['DEALER_REVISION_DATE'] = '2010-05-08T23:41:54.000Z'
 
     assert env.revision == '3ffb6b6'
     assert env.tag == 'v1.0'
+    assert type(env.revision_date) is datetime
+    assert env.revision_date == parse('2010-05-08T23:41:54.000Z')
 
     environ['MY_REVISION'] = '3ffb6b7'
     environ['MY_TAG'] = 'v1.1'
+    environ['MY_REVISION_DATE'] = '2010-06-08T23:41:54.000Z'
 
-    options = dict(revision_env_keyname='MY_REVISION', tag_env_keyname='MY_TAG')
+    options = dict(revision_env_keyname='MY_REVISION',
+                   tag_env_keyname='MY_TAG',
+                   revision_date_env_keyname='MY_REVISION_DATE')
     env = Backend(**options)
     assert env.revision == '3ffb6b7'
     assert env.tag == 'v1.1'
+    assert type(env.revision_date) is datetime
+    assert env.revision_date == parse('2010-06-08T23:41:54.000Z')
 
 
 def test_auto():
@@ -89,6 +105,7 @@ def test_auto():
     auto.path = path
     assert auto.repo
     assert auto.revision
+    assert auto.revision_date
 
     auto.path = git.path
     assert auto.repo
@@ -124,12 +141,17 @@ def test_flask():
     Dealer(app)
     assert app.revision
 
-    app.route('/')(lambda: "%s - %s" % (g.revision, g.tag))
+    app.route('/')(lambda: "%s - %s - %s" % (g.revision,
+                                             g.tag,
+                                             g.revision_date.strftime('%c')))
     with app.test_request_context():
         client = app.test_client()
         response = client.get('/')
         assert app.revision in response.data.decode('utf-8')
         assert app.tag in response.data.decode('utf-8')
+        assert type(app.revision_date) is datetime
+        assert (app.revision_date.strftime('%c')
+                in response.data.decode('utf-8'))
 
 
 def test_django():
@@ -146,6 +168,10 @@ def test_django():
     tag = client.get('/tag/')
     assert tag.status_code == 200
     assert tag.content
+
+    revision_date = client.get('/revision_date/')
+    assert revision_date.status_code == 200
+    assert revision_date.content
 
 
 def test_pyramid():

@@ -1,9 +1,9 @@
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.http import HttpResponse
 
 
-urlpatterns = patterns(
-    '',
-    ('^revision/', lambda r: HttpResponse(r.revision)),
-    ('^tag/', lambda r: HttpResponse(r.tag))
-)
+urlpatterns = [
+    url(r'^revision/', lambda r: HttpResponse(r.revision)),
+    url(r'^tag/', lambda r: HttpResponse(r.tag)),
+    url(r'^revision_date/', lambda r: HttpResponse(r.revision_date)),
+]

@@ -22,6 +22,7 @@ def dealer_context(event):
     if isinstance(event.rendering_val, dict):
         event.rendering_val['DEALER_REVISION'] = dealer.revision
         event.rendering_val['DEALER_TAG'] = dealer.tag
+        event.rendering_val['DEALER_REVISION_DATE'] = dealer.revision_date
 
 
 def includeme(config):

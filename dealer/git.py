@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 from os import path as op, name, getcwd
 
+from dateutil.parser import parse
+
 from subprocess import Popen, PIPE
 
 from .base import SCMBackend, logger
@@ -70,6 +72,8 @@ class Backend(SCMBackend):
             self._repo = GitRepo(self.path)
             self._revision = self.repo.git('log -1 --format=%h')
             self._tag = self.repo.git('describe --always --tags')
+            self._revision_date = parse(
+                self.repo.git('log -1 --format=%ad --date=iso'))
             return self._repo
 
         except GitException as e:

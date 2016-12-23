@@ -1,5 +1,7 @@
 """ Get revision from local environment. """
 
+from dateutil.parser import parse
+
 from .base import SCMBackend, logger
 
 
@@ -9,6 +11,7 @@ class Backend(SCMBackend):
 
     default_revision_env_keyname = 'DEALER_REVISION'
     default_tag_env_keyname = 'DEALER_TAG'
+    default_revision_date_env_keyname = 'DEALER_REVISION_DATE'
 
     def init_repo(self):
         """ Read revision from local environment variable.
@@ -41,6 +44,22 @@ class Backend(SCMBackend):
         except AssertionError:
             message = 'Environment variable {0} not found'.format(
                 tag_env_keyname)
+            if not self.options.get('silent'):
+                logger.error(message)
+
+            raise TypeError(message)
+
+        try:
+            revision_date_env_keyname = (self.options.get(
+                'revision_date_env_keyname') or
+                self.default_revision_date_env_keyname)
+            assert (
+                revision_date_env_keyname in environ and
+                environ[revision_date_env_keyname] != '')
+            self._revision_date = parse(environ[revision_date_env_keyname])
+        except AssertionError:
+            message = 'Environment variable {0} not found'.format(
+                revision_date_env_keyname)
             if not self.options.get('silent'):
                 logger.error(message)
 

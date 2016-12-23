@@ -34,6 +34,7 @@ class SCMBackend(object):
         self._repo = None
         self._revision = None
         self._tag = None
+        self._revision_date = None
 
     @property
     def repo(self):
@@ -58,6 +59,15 @@ class SCMBackend(object):
         :return str:
         """
         return self.repo and _to_str(self._tag)
+
+    @property
+    def revision_date(self):
+        """Get current revision's date.
+
+        :return datetime.datetime:
+        """
+        return (self.repo and hasattr(self, '_revision_date') and
+                self._revision_date)
 
     @abc.abstractmethod
     def init_repo(self):

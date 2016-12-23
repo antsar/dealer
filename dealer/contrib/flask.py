@@ -53,12 +53,15 @@ class Dealer(object):
         self.backend = backend = get_backend(self.type, **self.params)
 
         app.context_processor(
-            lambda: dict(REVISION=backend.revision, TAG=backend.tag))
+            lambda: dict(REVISION=backend.revision, TAG=backend.tag,
+                         REVISION_DATE=backend.revision_date))
         app.revision = backend.revision
         app.tag = backend.tag
+        app.revision_date = backend.revision_date
 
         def path_g():
             g.revision = backend.revision
             g.tag = backend.tag
+            g.revision_date = backend.revision_date
 
         app.before_first_request(path_g)

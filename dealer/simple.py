@@ -1,5 +1,8 @@
 """ Get revision from file. """
 
+import datetime
+import os
+
 from .base import SCMBackend, logger
 
 
@@ -26,6 +29,8 @@ class Backend(SCMBackend):
                 self.path) else op.join(self.path, filename)
             with open(rev_file) as f:
                 self._tag = self._revision = f.read().strip()
+                self._revision_date = datetime.datetime.fromtimestamp(
+                    os.path.getmtime(rev_file))
         except (AssertionError, IOError):
             message = 'Invalid path: {0}'.format(self.path)
             if not self.options.get('silent'):
